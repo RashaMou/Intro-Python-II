@@ -1,6 +1,9 @@
 from room import Room
+from player import Player
 import os
 import sys
+import time
+import textwrap
 
 # Declare all the rooms
 
@@ -52,7 +55,56 @@ room['treasure'].s_to = room['narrow']
 #
 # If the user enters "q", quit the game.
 
+#### HELPERS ###
+
+wrapper = textwrap.TextWrapper(width=50)
+
+
+def type(phrase):
+    for character in phrase:
+        sys.stdout.write(character)
+        sys.stdout.flush()
+        time.sleep(0.01)
+
+
+### INITIALIZE PLAYER ###
+
+
+def start_game():
+    os.system('clear')
+
+    question1 = "Hello, what's your name?\n"
+    type(question1)
+
+    player_name = input('> ')
+    player1 = Player(player_name, 'outside')
+    print(player1.print_location())
+    os.system('clear')
+
+    welcome = 'Welcome, ' + player_name + '. \n'
+    type(welcome)
+
+    def prompt():
+        location = room[player1.current_room].description + '\n'
+        prompt_action = 'What would you like to do? \n'
+
+        type(location)
+        type(prompt_action)
+
+
 #### Title Screen ####
+
+
+def title_screen():
+    os.system('clear')
+    print('#########################################')
+    print('## Welcome to ESCAPE FROM MONKEY CAVE! ##')
+    print('#########################################')
+    print('                - (P)lay -           ')
+    print('                - (H)elp -           ')
+    print('                - (Q)uit -           ')
+    print('        Creative Commons by Rasha    ')
+    title_screen_selections()
 
 
 def title_screen_selections():
@@ -74,18 +126,6 @@ def title_screen_selections():
             sys.exit()
 
 
-def title_screen():
-    os.system('clear')
-    print('#########################################')
-    print('## Welcome to ESCAPE FROM MONKEY CAVE! ##')
-    print('#########################################')
-    print('                - (P)lay -           ')
-    print('                - (H)elp -           ')
-    print('                - (Q)uit -           ')
-    print('        Creative Commons by Rasha    ')
-    title_screen_selections()
-
-
 def help_menu():
     print('########################################')
     print('## Welcome to ESCAPE FROM MONKEY CAVE ##')
@@ -93,4 +133,6 @@ def help_menu():
     print('- Placeholder for help -')
     title_screen_selections()
 
+
+### START ###
 title_screen()
