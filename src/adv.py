@@ -1,4 +1,6 @@
 from room import Room
+import os
+import sys
 
 # Declare all the rooms
 
@@ -49,3 +51,46 @@ room['treasure'].s_to = room['narrow']
 # Print an error message if the movement isn't allowed.
 #
 # If the user enters "q", quit the game.
+
+#### Title Screen ####
+
+
+def title_screen_selections():
+    option = input('> ')
+    if option.lower() == 'play' or 'p':
+        start_game()
+    elif option.lower() == 'help' or 'h':
+        help_menu()
+    elif option.lower() == 'quit' or 'q':
+        sys.exit()
+    while option.lower() not in ['play', 'help', 'quit', 'p', 'h', 'q']:
+        print('Please enter a valid command')
+        option = input('> ')
+        if option.lower() == 'play' or 'p':
+            start_game()
+        elif option.lower() == 'help' or 'h':
+            help_menu()
+        elif option.lower() == 'quit' or 'q':
+            sys.exit()
+
+
+def title_screen():
+    os.system('clear')
+    print('#########################################')
+    print('## Welcome to ESCAPE FROM MONKEY CAVE! ##')
+    print('#########################################')
+    print('                - (P)lay -           ')
+    print('                - (H)elp -           ')
+    print('                - (Q)uit -           ')
+    print('        Creative Commons by Rasha    ')
+    title_screen_selections()
+
+
+def help_menu():
+    print('########################################')
+    print('## Welcome to ESCAPE FROM MONKEY CAVE ##')
+    print('########################################')
+    print('- Placeholder for help -')
+    title_screen_selections()
+
+title_screen()
