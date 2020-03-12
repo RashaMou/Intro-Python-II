@@ -4,9 +4,9 @@
 
 class Player:
 
-    def __init__(self, name, current_loc):
+    def __init__(self, name, current_location):
         self.name = name,
-        self.current_loc = current_loc
+        self.current_location = current_location
 
-    def move(self, next_loc):
-        self.current_loc = next_loc
+    def move(self, next_location):
+        self.current_location = next_location

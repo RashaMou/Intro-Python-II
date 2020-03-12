@@ -62,7 +62,7 @@ room['treasure'].s_to = room['narrow']
 wrapper = textwrap.TextWrapper(width=50)
 
 
-def type(phrase):
+def typewriter(phrase):
     for character in phrase:
         sys.stdout.write(character)
         sys.stdout.flush()
@@ -71,6 +71,7 @@ def type(phrase):
 
 def help_menu():
     print('To move, type (n)orth (s)outh (e)ast or (w)est to move in that direction.')
+
 
 ### START GAME ###
 
@@ -83,7 +84,7 @@ def start_game():
     os.system('clear')
 
     question1 = "Hello, what's your name?\n"
-    type(question1)
+    typewriter(question1)
 
     player_name = input('> ')
     global player
@@ -92,40 +93,69 @@ def start_game():
     os.system('clear')
 
     welcome = 'Welcome, ' + player_name + '. \n'
-    type(welcome)
-    location_description = player.current_loc.description + '\n'
-    type(location_description)
+    typewriter(welcome)
 
-    os.system('clear')
+    move_loop()
 
 
 ### GAME LOOP ####
 
-
-def move_loop():
-
-    prompt_action = 'Where would you like to go? \n'
-
-    type(location_description)
-    type(prompt_action)
-
+def move_input():
     action = input('> ')
     acceptable_directions = ['n', 's', 'w', 'e']
     while action.lower() not in acceptable_directions:
         print('Unknown direction, please try again. You can also press (h) for help, or (q) to quit. \n')
         action = input('> ')
-    if action.lower() == 'q':
-        sys.exit()
-    if action.lower() == 'h':
-        help_menu()
+        if action.lower() == 'q':
+            sys.exit()
+        if action.lower() == 'h':
+            help_menu()
     if action.lower() in acceptable_directions:
         player_move(action.lower())
 
 
+def move_loop():
+    location_name = 'You are now in the ' + player.current_location.name + '.\n'
+    location_description = player.current_location.description + '.\n'
+    prompt_move_action = 'Where would you like to go? \n'
+    typewriter(location_name)
+    typewriter(location_description)
+    typewriter(prompt_move_action)
+    move_input()
+
+
 def player_move(action):
+    # direction = action + '_to'
+    # if hasattr(player.current_location, direction):
+    #     player.current_location = player.current_location.direction
     if action == 'n':
-        player.current_room = player.current_location.n_to
-        print(player.current_location.n_to)
+        if hasattr(player.current_location, 'n_to'):
+            player.move(player.current_location.n_to)
+            move_loop()
+        else:
+            print('You cannot move there from here. Try another direction')
+            move_input()
+    elif action == 's':
+        if hasattr(player.current_location, 's_to'):
+            player.move(player.current_location.s_to)
+            move_loop()
+        else:
+            print('You cannot move there from here. Try another direction')
+            move_input()
+    elif action == 'w':
+        if hasattr(player.current_location, 'w_to'):
+            player.move(player.current_location.w_to)
+            move_loop()
+        else:
+            print('You cannot move there from here. Try another direction')
+            move_input()
+    elif action == 'e':
+        if hasattr(player.current_location, 'e_to'):
+            player.move(player.current_location.e_to)
+            move_loop()
+        else:
+            print('You cannot move there from here. Try another direction')
+            move_input()
 
 
 #### Title Screen ####
