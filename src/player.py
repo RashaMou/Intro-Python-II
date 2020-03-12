@@ -4,12 +4,9 @@
 
 class Player:
 
-    def __init__(self, name, current_room):
+    def __init__(self, name, current_loc):
         self.name = name,
-        self.current_room = current_room
+        self.current_loc = current_loc
 
-    def move(self, next_room):
-        self.current_room = next_room
-
-    def print_location(self):
-        return f"You are now {self.current_room}"
+    def move(self, next_loc):
+        self.current_loc = next_loc

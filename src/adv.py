@@ -5,6 +5,24 @@ import sys
 import time
 import textwrap
 
+
+#
+# Main
+#
+
+# Make a new player object that is currently in the 'outside' room.
+
+# Write a loop that:
+#
+# * Prints the current room name
+# * Prints the current description (the textwrap module might be useful here).
+# * Waits for user input and decides what to do.
+#
+# If the user enters a cardinal direction, attempt to move to the room there.
+# Print an error message if the movement isn't allowed.
+#
+# If the user enters "q", quit the game.
+
 # Declare all the rooms
 
 room = {
@@ -38,22 +56,6 @@ room['narrow'].w_to = room['foyer']
 room['narrow'].n_to = room['treasure']
 room['treasure'].s_to = room['narrow']
 
-#
-# Main
-#
-
-# Make a new player object that is currently in the 'outside' room.
-
-# Write a loop that:
-#
-# * Prints the current room name
-# * Prints the current description (the textwrap module might be useful here).
-# * Waits for user input and decides what to do.
-#
-# If the user enters a cardinal direction, attempt to move to the room there.
-# Print an error message if the movement isn't allowed.
-#
-# If the user enters "q", quit the game.
 
 #### HELPERS ###
 
@@ -64,32 +66,66 @@ def type(phrase):
     for character in phrase:
         sys.stdout.write(character)
         sys.stdout.flush()
-        time.sleep(0.01)
+        time.sleep(0.06)
 
 
-### INITIALIZE PLAYER ###
+def help_menu():
+    print('To move, type (n)orth (s)outh (e)ast or (w)est to move in that direction.')
+
+### START GAME ###
 
 
 def start_game():
+    os.system('clear')
+    print('##################')
+    print("## Let's begin! ##")
+    print('##################')
     os.system('clear')
 
     question1 = "Hello, what's your name?\n"
     type(question1)
 
     player_name = input('> ')
-    player1 = Player(player_name, 'outside')
-    print(player1.print_location())
+    global player
+    current_location = room['outside']
+    player = Player(player_name, current_location)
     os.system('clear')
 
     welcome = 'Welcome, ' + player_name + '. \n'
     type(welcome)
+    location_description = player.current_loc.description + '\n'
+    type(location_description)
 
-    def prompt():
-        location = room[player1.current_room].description + '\n'
-        prompt_action = 'What would you like to do? \n'
+    os.system('clear')
 
-        type(location)
-        type(prompt_action)
+
+### GAME LOOP ####
+
+
+def move_loop():
+
+    prompt_action = 'Where would you like to go? \n'
+
+    type(location_description)
+    type(prompt_action)
+
+    action = input('> ')
+    acceptable_directions = ['n', 's', 'w', 'e']
+    while action.lower() not in acceptable_directions:
+        print('Unknown direction, please try again. You can also press (h) for help, or (q) to quit. \n')
+        action = input('> ')
+    if action.lower() == 'q':
+        sys.exit()
+    if action.lower() == 'h':
+        help_menu()
+    if action.lower() in acceptable_directions:
+        player_move(action.lower())
+
+
+def player_move(action):
+    if action == 'n':
+        player.current_room = player.current_location.n_to
+        print(player.current_location.n_to)
 
 
 #### Title Screen ####
@@ -109,24 +145,25 @@ def title_screen():
 
 def title_screen_selections():
     option = input('> ')
-    if option.lower() == 'play' or 'p':
+    if option.lower() == 'p':
         start_game()
-    elif option.lower() == 'help' or 'h':
-        help_menu()
-    elif option.lower() == 'quit' or 'q':
+    elif option.lower() == 'h':
+        help_menu_start()
+    elif option.lower() == 'q':
         sys.exit()
-    while option.lower() not in ['play', 'help', 'quit', 'p', 'h', 'q']:
+    while option.lower() not in ['p', 'h', 'q']:
         print('Please enter a valid command')
         option = input('> ')
-        if option.lower() == 'play' or 'p':
+        if option.lower() == 'p':
             start_game()
-        elif option.lower() == 'help' or 'h':
-            help_menu()
-        elif option.lower() == 'quit' or 'q':
+        elif option.lower() == 'h':
+            os.system('clear')
+            help_menu_start()
+        elif option.lower() == 'q':
             sys.exit()
 
 
-def help_menu():
+def help_menu_start():
     print('########################################')
     print('## Welcome to ESCAPE FROM MONKEY CAVE ##')
     print('########################################')
