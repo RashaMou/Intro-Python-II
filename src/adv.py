@@ -1,5 +1,6 @@
 from room import Room
 from player import Player
+from item import Item
 import os
 import sys
 import time
@@ -56,6 +57,16 @@ room['narrow'].w_to = room['foyer']
 room['narrow'].n_to = room['treasure']
 room['treasure'].s_to = room['narrow']
 
+### Initialize Items
+
+sword = Item('sword', 'weapon', 'A sharp steel blade')
+food = Item('food', 'sustenance', "Not delicious, but it'll do")
+twine = Item('twine', 'resource', 'Can be used to craft things')
+wood = Item('wood', 'resource', 'Can be used to craft things' )
+herbs = Item('herbs', 'resource', 'Medicinal herbs to restore health')
+
+### Add items to room
+room['outside'].items = sword, twine
 
 #### HELPERS ###
 
@@ -66,96 +77,140 @@ def typewriter(phrase):
     for character in phrase:
         sys.stdout.write(character)
         sys.stdout.flush()
-        time.sleep(0.06)
-
+        time.sleep(0.001)
 
 def help_menu():
-    print('To move, type (n)orth (s)outh (e)ast or (w)est to move in that direction.')
+    print('\n#############################')
+    print('##        Help Menu        ##')
+    print('#############################\n')
+    print('Travel:       (n)orth, (s)outh, (e)ast, (w)est.')
+    print('Inventory:    (v)iew items in a room, check your (i)nventory, (take) an item, (drop) an item, (examine) an item .')
+    print('Help:         (h)')
+    print('\n')
 
+def unknown_command_options():
+    print('Unknown command, please try again. You can also press (h) for help, or (q) to quit. \n')
+    action = input('>>>> ')
+    if action == 'q':
+        sys.exit()
+    elif action == 'h':
+        help_menu()
 
 ### START GAME ###
 
+def player_inventory_loop():
+    player.view_inventory_items()
+    action = input('>>>> ')
+    cmd = action.split(' ') ## gives us a list
+    if cmd[0] == 'examine':
+        for item in player.items:
+            if item.name == cmd[1]:
+                idx = player.items.index(item)
+                player.items[idx].examine_item()
+                break
+                room_loop()
+            else:
+                print('Unknown item. Please try again.')
+                break
+    elif cmd[0] == 'drop':
+        for item in player.current_room.items:
+            if item.name == cmd[1]:
+                idx = player.items.index(item)
+                player.drop_inventory_item(player.current_room.items[idx])
+                ## add inventory item to room
+                player.current_room.add_items_to_room(player.current_room.items[idx])
+                break
+                print('\n')
+                room_loop()
+            else:
+                print('Unknown item. Please try again.')
+                break
+    if cmd[0] == 'c':
+            room_loop()
+
+def room_inventory_loop():
+    player.current_room.view_room_items()
+    action = input('>>>> ')
+    cmd = action.split(' ')
+    if cmd[0] == 'examine':
+        for item in player.current_room.items:
+            if item.name == cmd[1]:
+                idx = player.current_room.items.index(item)
+                player.current_room.items[idx].examine_item()
+                break
+                room_loop()
+            else:
+                print('Unknown item. Please try again.')
+                break
+    elif cmd[0] == 'take':
+        for item in player.current_room.items:
+            if item.name == cmd[1]:
+                idx = player.current_room.items.index(item)
+                player.add_inventory_item(player.current_room.items[idx])
+                player.current_room.remove_item(player.current_room.items[idx])
+                break
+                print('\n')
+                room_loop()
+            else:
+                print('Unknown item. Please try again.')
+                break
+    if cmd[0] == 'c':
+            room_loop()
+
 
 def start_game():
-    os.system('clear')
-    print('##################')
-    print("## Let's begin! ##")
-    print('##################')
-    os.system('clear')
+    help_menu()
 
     question1 = "Hello, what's your name?\n"
     typewriter(question1)
 
-    player_name = input('> ')
+    player_name = input('>>>> ')
+    print('\n')
     global player
-    current_location = room['outside']
-    player = Player(player_name, current_location)
-    os.system('clear')
+    player = Player(player_name, room['outside'])
+    welcome = 'Welcome, ' + player_name + '.'
 
-    welcome = 'Welcome, ' + player_name + '. \n'
     typewriter(welcome)
+    print('\n')
 
-    move_loop()
+    game_loop()
 
+def action_loop():
+    acceptable_inputs = ['n', 's', 'w', 'e', 'v', 'i']
+    print('\n')
+    action = input('>>>> ')
+    while action not in acceptable_inputs:
+        unknown_command_options()
+    if action in acceptable_inputs[:4]:
+        player.travel(action)
+    elif action == 'i':
+        player_inventory_loop()
+    elif action == 'v':
+        room_inventory_loop()
+
+
+
+def room_loop():
+    print('\n')
+    typewriter('You are now in the ' + player.current_room.name + '.\n')
+    typewriter(player.current_room.description + '.\n')
+    print('\n')
+    typewriter('You can (v)iew items in this location, or go in one of these directions:\n')
+    print(player.current_room.get_exits_string())
 
 ### GAME LOOP ####
 
-def move_input():
-    action = input('> ')
-    acceptable_directions = ['n', 's', 'w', 'e']
-    while action.lower() not in acceptable_directions:
-        print('Unknown direction, please try again. You can also press (h) for help, or (q) to quit. \n')
-        action = input('> ')
-        if action.lower() == 'q':
-            sys.exit()
-        if action.lower() == 'h':
-            help_menu()
-    if action.lower() in acceptable_directions:
-        player_move(action.lower())
+def game_loop():
+    while True:
+        room_loop()
+        action_loop()
 
 
-def move_loop():
-    location_name = 'You are now in the ' + player.current_location.name + '.\n'
-    location_description = player.current_location.description + '.\n'
-    prompt_move_action = 'Where would you like to go? \n'
-    typewriter(location_name)
-    typewriter(location_description)
-    typewriter(prompt_move_action)
-    move_input()
 
 
-def player_move(action):
-    # direction = action + '_to'
-    # if hasattr(player.current_location, direction):
-    #     player.current_location = player.current_location.direction
-    if action == 'n':
-        if hasattr(player.current_location, 'n_to'):
-            player.move(player.current_location.n_to)
-            move_loop()
-        else:
-            print('You cannot move there from here. Try another direction')
-            move_input()
-    elif action == 's':
-        if hasattr(player.current_location, 's_to'):
-            player.move(player.current_location.s_to)
-            move_loop()
-        else:
-            print('You cannot move there from here. Try another direction')
-            move_input()
-    elif action == 'w':
-        if hasattr(player.current_location, 'w_to'):
-            player.move(player.current_location.w_to)
-            move_loop()
-        else:
-            print('You cannot move there from here. Try another direction')
-            move_input()
-    elif action == 'e':
-        if hasattr(player.current_location, 'e_to'):
-            player.move(player.current_location.e_to)
-            move_loop()
-        else:
-            print('You cannot move there from here. Try another direction')
-            move_input()
+
+
+
 
 
 #### Title Screen ####
